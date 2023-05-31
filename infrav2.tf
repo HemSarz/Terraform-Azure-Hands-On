@@ -289,5 +289,4 @@ locals {
   cmd03              = "Import-Module ADDSDeployment, DnsServer"
   cmd04              = "Install-ADDSForest -DomainName ${var.domain_name} -DomainNetbiosName ${var.domain_netbios_name} -DomainMode ${var.domain_mode} -ForestMode ${var.domain_mode} -DatabasePath ${var.database_path} -SysvolPath ${var.sysvol_path} -LogPath ${var.log_path} -NoRebootOnCompletion:$false -Force:$true -SafeModeAdministratorPassword (ConvertTo-SecureString ${local.generated_password} -AsPlainText -Force)"
   powershell         = "${local.cmd01}; ${local.cmd02}; ${local.cmd03}; ${local.cmd04}"
-
 }
