@@ -22,8 +22,11 @@ resource "azurerm_resource_group" "rg02" {
 #### Random password | Adminuser | KeyVault
 
 resource "random_password" "dc01-vm-pass" {
-  length  = 12
-  special = true
+  length           = 12
+  lower            = true
+  upper            = true
+  special          = true
+  override_special = "_%@"
 }
 
 resource "random_id" "rgne1-kv01" {
@@ -31,23 +34,9 @@ resource "random_id" "rgne1-kv01" {
   prefix      = "rgne1-kv01"
 }
 
-resource "random_id" "dc01-vm-admin" {
-  byte_length = 4
-  prefix      = "dc01tfaz"
-}
-
-########
-
 resource "azurerm_key_vault_secret" "vm-pass" {
   name         = "dc01-vm-pass"
   value        = random_password.dc01-vm-pass.result
-  key_vault_id = azurerm_key_vault.rgne1-sec-kv01.id
-  depends_on   = [azurerm_key_vault.rgne1-sec-kv01]
-}
-
-resource "azurerm_key_vault_secret" "dc01-admin" {
-  name         = "dc01-admin"
-  value        = random_id.dc01-vm-admin.id
   key_vault_id = azurerm_key_vault.rgne1-sec-kv01.id
   depends_on   = [azurerm_key_vault.rgne1-sec-kv01]
 }
@@ -284,9 +273,10 @@ resource "azurerm_virtual_machine_extension" "dc01-ad" {
 
 locals {
   generated_password = random_password.dc01-vm-pass.result
-  cmd01              = "Install-WindowsFeature AD-Domain-Services -IncludeAllSubFeature -IncludeManagementTools"
-  cmd02              = "Install-WindowsFeature DNS -IncludeAllSubFeature -IncludeManagementTools"
-  cmd03              = "Import-Module ADDSDeployment, DnsServer"
-  cmd04              = "Install-ADDSForest -DomainName ${var.domain_name} -DomainNetbiosName ${var.domain_netbios_name} -DomainMode ${var.domain_mode} -ForestMode ${var.domain_mode} -DatabasePath ${var.database_path} -SysvolPath ${var.sysvol_path} -LogPath ${var.log_path} -NoRebootOnCompletion:$false -Force:$true -SafeModeAdministratorPassword (ConvertTo-SecureString ${local.generated_password} -AsPlainText -Force)"
-  powershell         = "${local.cmd01}; ${local.cmd02}; ${local.cmd03}; ${local.cmd04}"
+  cmd01              = "Get-Disk | Where partitionstyle -eq 'raw' | Initialize-Disk -PartitionStyle MBR -PassThru | New-Partition -UseMaximumSize -DriveLetter E | Format-Volume -FileSystem NTFS -NewFileSystemLabel 'data' -Confirm:$false"
+  cmd02              = "Install-WindowsFeature AD-Domain-Services -IncludeAllSubFeature -IncludeManagementTools"
+  cmd03              = "Install-WindowsFeature DNS -IncludeAllSubFeature -IncludeManagementTools"
+  cmd04              = "Import-Module ADDSDeployment, DnsServer"
+  cmd05              = "Install-ADDSForest -DomainName ${var.domain_name} -DomainNetbiosName ${var.domain_netbios_name} -DomainMode ${var.domain_mode} -ForestMode ${var.domain_mode} -DatabasePath ${var.database_path} -SysvolPath ${var.sysvol_path} -LogPath ${var.log_path} -NoRebootOnCompletion:$false -Force:$true -SafeModeAdministratorPassword (ConvertTo-SecureString ${local.generated_password} -AsPlainText -Force)"
+  powershell         = "${local.cmd01}; ${local.cmd02}; ${local.cmd03}; ${local.cmd04}; ${local.cmd05}"
 }

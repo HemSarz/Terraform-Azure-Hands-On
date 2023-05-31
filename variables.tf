@@ -122,13 +122,13 @@ variable "dc01-vm-adminuser" {
 
 variable "domain_name" {
   type    = string
-  default = "ntweekly.com"
+  default = "tfaz.local"
 }
 
 
 variable "domain_netbios_name" {
   type    = string
-  default = "ntweekly"
+  default = "tfaz"
 }
 
 variable "domain_mode" {
@@ -138,20 +138,15 @@ variable "domain_mode" {
 
 variable "database_path" {
   type    = string
-  default = "C:/Windows/NTDS"
+  default = "E:/Windows/NTDS"
 }
 
 variable "sysvol_path" {
   type    = string
-  default = "C:/Windows/SYSVOL"
+  default = "E:/Windows/SYSVOL"
 }
 
 variable "log_path" {
   type    = string
-  default = "C:/Windows/NTDS"
-}
-
-variable "safe_mode_administrator_password" {
-  type    = string
-  default = "Acer2012."
+  default = "E:/Windows/NTDS"
 }
