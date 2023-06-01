@@ -6,11 +6,12 @@
 -	Network Security Group for allowing the local machine to RDP into VM and associates the NSG rule to the subnets.
 -	One Public IP for the VM DC.
 -	Network Interface resource which is associated with the Public IP.
-## Security Resource Group,
+
+## Security Resource Group
 -	Key Vault and a Secret for the admin user.
 -	Creating a random password using the “Random” provider
 -	VNET2 with two subnets.
+
 ## Providers:
 -	Azure: https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs
--	Random: https://registry.terraform.io/providers/hashicorp/random/latest/docs   
-
+-	Random: https://registry.terraform.io/providers/hashicorp/random/latest/docs  
