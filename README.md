@@ -1,8 +1,6 @@
 Hands-On Lab Environment for Azure
-Overview
 
 The following resources are deployed:
-
     Two Resource Groups, one for the Lab infrastructure, and another for Security related items.
     Two Subnets in each VNET with peering
     Uses the Automatic-ClientIP-NSG to setup a Network Security Group that allows RDP access in - this NSG rule uses the external IP of the machine that runs Terraform.
