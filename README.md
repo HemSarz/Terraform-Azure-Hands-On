@@ -1,6 +1,7 @@
-Hands-On Lab Environment for Azure
+#Hands-On Lab Environment for Azure
 
-The following resources are deployed:
+#The following resources are deployed:
+
     Two Resource Groups, one for the Lab infrastructure, and another for Security related items.
     Two Subnets in each VNET with peering
     Uses the Automatic-ClientIP-NSG to setup a Network Security Group that allows RDP access in - this NSG rule uses the external IP of the machine that runs Terraform.
@@ -10,4 +11,4 @@ The following resources are deployed:
     Creates a Network Interface Card and associates the above Public IP.
     Creates a Data Disk for NTDS Storage on the Domain Controller VM.
     Creates a Windows 2019 VM to act as a Domain Controller. The Username for this VM is a Variable, and the Password is saved as a Secret in the Key Vault. (It was automatically generated in Step 6).
-    Attaches the Data Disk created in step 9, with caching Turned off.
+    Attaches the Data Disk created
