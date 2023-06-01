@@ -1,6 +1,6 @@
-#Hands-On Lab Environment for Azure
+##Hands-On Lab Environment for Azure
 
-#The following resources are deployed:
+##The following resources are deployed:
 
     Two Resource Groups, one for the Lab infrastructure, and another for Security related items.
     Two Subnets in each VNET with peering
