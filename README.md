@@ -1,14 +1,19 @@
-##Hands-On Lab Environment for Azure
+## Hands-On Lab – Terraform | Azure
 
-##The following resources are deployed:
+## Infrastructure resource group
+o	A Windows 2019 Virtual Machine that is promoted to Domain Controller with an attached disk used as an NTDS storage using PowerShell script within the terraform code.
+o	One VNET1 with 2 subnets 
+o	Peering between VNET1 and VNET2
+o	Network Security Group for allowing the local machine to RDP into VM and associates the NSG rule to the subnets.
+o	One Public IP for the VM DC.
+o	Network Interface resource which is associated with the Public IP
+o	Create an Admin User for the VM 
 
-    Two Resource Groups, one for the Lab infrastructure, and another for Security related items.
-    Two Subnets in each VNET with peering
-    Uses the Automatic-ClientIP-NSG to setup a Network Security Group that allows RDP access in - this NSG rule uses the external IP of the machine that runs Terraform.
-    Associates the created NSG to all Lab Subnets.
-    Creates a Key Vault with a randomised name, using Azure-KeyVault-with-Secret, and then creates a password as a Secret within the Key Vault that is used later to setup a VM.
-    Creates a Public IP for the Domain Controller VM.
-    Creates a Network Interface Card and associates the above Public IP.
-    Creates a Data Disk for NTDS Storage on the Domain Controller VM.
-    Creates a Windows 2019 VM to act as a Domain Controller. The Username for this VM is a Variable, and the Password is saved as a Secret in the Key Vault. (It was automatically generated in Step 6).
-    Attaches the Data Disk created
+## Security Resource Group
+o	Key Vault with prefix and random name using the "Random" provider
+o	Creating a random password using the “Random” provider and storing it in the KeyVault as an SECRET
+o	VNET2 with two subnets.
+
+## Providers:
+•	Azure: https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs
+•	Random: https://registry.terraform.io/providers/hashicorp/random/latest/docs   
