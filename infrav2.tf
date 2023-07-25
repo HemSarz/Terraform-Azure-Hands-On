@@ -177,6 +177,20 @@ resource "azurerm_network_security_group" "rgne1-nsg-rdp" {
     source_address_prefix      = "${chomp(data.http.clientip.response_body)}/32"
     destination_address_prefix = "*"
   }
+
+
+  security_rule {
+    name                       = "AllowPSRemoting"
+    priority                   = 301
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = "5986"
+    source_address_prefix      = "AzureActiveDirectoryDomainServices"
+    destination_address_prefix = "*"
+  }
+
 }
 
 #### Network - NSG Association 
@@ -279,4 +293,66 @@ locals {
   cmd04              = "Import-Module ADDSDeployment, DnsServer"
   cmd05              = "Install-ADDSForest -DomainName ${var.domain_name} -DomainNetbiosName ${var.domain_netbios_name} -DomainMode ${var.domain_mode} -ForestMode ${var.domain_mode} -DatabasePath ${var.database_path} -SysvolPath ${var.sysvol_path} -LogPath ${var.log_path} -NoRebootOnCompletion:$false -Force:$true -SafeModeAdministratorPassword (ConvertTo-SecureString ${local.generated_password} -AsPlainText -Force)"
   powershell         = "${local.cmd01}; ${local.cmd02}; ${local.cmd03}; ${local.cmd04}; ${local.cmd05}"
+}
+
+### Service Principal
+resource "azuread_service_principal" "tfazspn" {
+  application_id = "2565bd9d-da50-47d4-8b85-4c97f669dc36"
+}
+
+###register the Microsoft.AAD resource provider
+resource "azurerm_resource_provider_registration" "tfaz-aadds" {
+  name = "Microsoft.AAD"
+}
+
+####DC Admin Group | User | Password
+resource "azuread_group" "dc_admins" {
+  display_name     = "AAD DC Admins"
+  description      = "AADDS Admins"
+  members          = [azuread_user.dc_admin.object_id]
+  security_enabled = true
+}
+
+resource "azuread_user" "dc_admin" {
+  user_principal_name = "dc-admin@sarzali788hotmail.onmicrosoft.com"
+  display_name        = "AADDS Admins"
+  password            = random_password.dc_admin.result
+}
+
+resource "azuread_directory_role_assignment" "dc_admin" {
+  role_id             = "62e90394-69f5-4237-9190-012177145e10" #Global Administrator built-in role ID | https://learn.microsoft.com/en-us/azure/active-directory/roles/permissions-reference#global-administrator
+  principal_object_id = resource.azuread_user.dc_admin.object_id
+}
+
+resource "random_password" "dc_admin" {
+  length  = 12
+  lower   = true
+  upper   = true
+  special = true
+}
+
+resource "azurerm_key_vault_secret" "dc_admin-pass" {
+  name         = "dc-admin-pass"
+  value        = random_password.dc_admin.result
+  key_vault_id = azurerm_key_vault.rgne1-sec-kv01.id
+}
+
+resource "azurerm_active_directory_domain_service" "tfaz-aadds" {
+  name                = "aadds"
+  location            = var.locne
+  resource_group_name = azurerm_resource_group.rg01.name
+
+  domain_name = "tfaz-aadds.local"
+  sku         = "Standard"
+
+  initial_replica_set {
+    subnet_id = azurerm_subnet.rgne1-vnet1-subn1.id
+  }
+
+  depends_on = [
+    azuread_service_principal.tfazspn,
+    azurerm_resource_provider_registration.tfaz-aadds,
+    azurerm_subnet_network_security_group_association.rgne1-vnet1-subn1-nsg,
+  ]
+
 }
